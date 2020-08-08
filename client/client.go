@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	log "github.com/sirupsen/logrus"
@@ -9,12 +10,14 @@ import (
 	"time"
 )
 
+var messageQueue = make(chan []byte)
+
 // maxBufferSize specifies the size of the buffers that
 // are used to temporarily hold data from the UDP packets
 // that we receive.
 const maxBufferSize = 1024
 
-func client(ctx context.Context, address string, reader io.Reader) (err error) {
+func New(ctx context.Context, address string, reader io.Reader) (err error) {
 	raddr, err := net.ResolveUDPAddr("udp", address)
 	if err != nil {
 		return
@@ -54,6 +57,12 @@ func client(ctx context.Context, address string, reader io.Reader) (err error) {
 	}()
 
 	select {
+	case msg := <-messageQueue:
+		n, err := io.Copy(conn, bytes.NewReader(msg))
+		if err != nil {
+			doneChan <- err
+			return
+		}
 	case <-ctx.Done():
 		fmt.Println("cancelled")
 		err = ctx.Err()

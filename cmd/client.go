@@ -1,7 +1,11 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"github.com/leighmacdonald/discord_log_relay/client"
+	"github.com/leighmacdonald/discord_log_relay/consts"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -17,7 +21,10 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("client called")
+		ctx := context.Background()
+		if err := client.New(ctx, fmt.Sprintf("localhost:%d", consts.ListenPort)); err != nil {
+			log.Fatalf()
+		}
 	},
 }
 
