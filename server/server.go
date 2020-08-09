@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/leighmacdonald/discord_log_relay/consts"
+	"github.com/leighmacdonald/discord_log_relay/relay"
 	log "github.com/sirupsen/logrus"
 	"net"
 	"time"
@@ -19,7 +20,6 @@ func Server(ctx context.Context, address string) (err error) {
 			log.Errorf("Failed to close client conn: %v", err)
 		}
 	}()
-
 	doneChan := make(chan error, 1)
 	buffer := make([]byte, consts.MaxBufferSize)
 	go func() {
@@ -38,7 +38,8 @@ func Server(ctx context.Context, address string) (err error) {
 				doneChan <- err
 				return
 			}
-
+			var p relay.Payload
+			relay.Decode(buffer[:n], &p)
 			// Write the packet's contents back to the client.
 			n, err = pc.WriteTo(buffer[:n], addr)
 			if err != nil {
