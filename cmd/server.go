@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/leighmacdonald/discord_log_relay/consts"
+	"github.com/leighmacdonald/discord_log_relay/relay"
 	"github.com/leighmacdonald/discord_log_relay/server"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -13,10 +14,11 @@ import (
 var serverCmd = &cobra.Command{
 	Use:   "server",
 	Short: "A brief description of your command",
-	Long: ``,
+	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
-		if err := server.Server(ctx, fmt.Sprintf(":%d", consts.ListenPort); err != nil {
+		relay.StartBot(ctx, "", "")
+		if err := server.Server(ctx, fmt.Sprintf(":%d", consts.ListenPort)); err != nil {
 			log.Errorf("Failed to close server cleanly: %v", err)
 		}
 	},

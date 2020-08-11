@@ -3,6 +3,7 @@ module github.com/leighmacdonald/discord_log_relay
 go 1.14
 
 require (
+	github.com/bwmarrin/discordgo v0.22.0
 	github.com/hpcloud/tail v1.0.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/sirupsen/logrus v1.6.0

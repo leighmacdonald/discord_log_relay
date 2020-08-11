@@ -46,13 +46,13 @@ func New(ctx context.Context, name string, logPath string, address string) (err 
 	go fileReader(logPath, messageChan)
 	select {
 	case msg := <-messageChan:
-		b, err := relay.Encode(relay.Payload{Type: relay.TypeLog, Server: name, Message: msg})
-		if err != nil {
+		b, err2 := relay.Encode(relay.Payload{Type: relay.TypeLog, Server: name, Message: msg})
+		if err2 != nil {
 			log.Errorf("Error encoding payload")
 			break
 		}
-		_, err = io.Copy(conn, bytes.NewReader(b))
-		if err != nil {
+		_, err2 = io.Copy(conn, bytes.NewReader(b))
+		if err2 != nil {
 			return
 		}
 	case <-ctx.Done():
