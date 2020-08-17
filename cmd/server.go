@@ -12,12 +12,19 @@ import (
 
 // serverCmd represents the server command
 var serverCmd = &cobra.Command{
-	Use:   "server",
-	Short: "A brief description of your command",
-	Long:  ``,
+	Use:     "server",
+	Short:   "",
+	Long:    ``,
+	Version: relay.BuildVersion,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
-		relay.StartBot(ctx, "", "")
+		token := cmd.Flag("token").Value.String()
+		channel := cmd.Flag("channel").Value.String()
+		go func() {
+			if err := relay.StartDiscord(ctx, token, channel); err != nil {
+				log.Errorf("Bot shutdown uncleanly: %v", err)
+			}
+		}()
 		if err := server.Server(ctx, fmt.Sprintf(":%d", consts.ListenPort)); err != nil {
 			log.Errorf("Failed to close server cleanly: %v", err)
 		}
@@ -26,14 +33,6 @@ var serverCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(serverCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// serverCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// serverCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	serverCmd.Flags().StringP("token", "t", "", "Discord bot token")
+	serverCmd.Flags().StringP("channel", "c", "", "Discord channel ID to send messages")
 }

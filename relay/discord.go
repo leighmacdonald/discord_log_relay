@@ -2,7 +2,6 @@ package relay
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	log "github.com/sirupsen/logrus"
@@ -10,21 +9,25 @@ import (
 )
 
 var (
-	token     string
 	session   *discordgo.Session
 	channelID string
-	ctx       = context.Background()
 )
 
-func init() {
-	flag.StringVar(&token, "t", "", "Bot Token")
-	flag.Parse()
+func SendPayload(p Payload) error {
+	team := ""
+	if p.SayTeam {
+		team = "(team) "
+	}
+	format := "`[%s] %s|%d: %s%s`"
+	return SendMsg(channelID, fmt.Sprintf(format, p.Server, p.Username, p.SteamID.Int64(), team, p.Message))
 }
 
-func sendMsg(s *discordgo.Session, c string, msg string) {
-	if _, err := s.ChannelMessageSend(c, msg); err != nil {
-		log.Errorf("Failed to send message to channel: %s", err.Error())
+func SendMsg(channel string, msg string) error {
+	if _, err := session.ChannelMessageSend(channel, msg); err != nil {
+		log.Errorf("Failed to send message to channel: %v", err)
+		return err
 	}
+	return nil
 }
 
 func onConnect(s *discordgo.Session, _ *discordgo.Connect) {
@@ -32,7 +35,7 @@ func onConnect(s *discordgo.Session, _ *discordgo.Connect) {
 	log.Info("Connected to session ws API")
 	d := discordgo.UpdateStatusData{
 		Game: &discordgo.Game{
-			Name:    `xxx`,
+			Name:    `Uncletopia`,
 			URL:     "git@github.com/leighmacdonald/discord_log_relay",
 			Details: "Pew Pew",
 		},
@@ -55,19 +58,18 @@ func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	log.Infof(m.Content)
 }
 
-func StartBot(ctx context.Context, t string, cID string) {
+func StartDiscord(ctx context.Context, token string, cID string) error {
 	if token == "" {
 		log.Fatalf("No TOKEN specified")
 	}
-	if channelID == "" {
+	if cID == "" {
 		log.Fatalf("No CHANNEL_ID specified")
 	}
 	channelID = cID
-	token = t
 	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
 		fmt.Println("Error creating Discord session: ", err)
-		return
+		return err
 	}
 	dg.AddHandler(onConnect)
 	dg.AddHandler(onDisconnect)
@@ -77,6 +79,7 @@ func StartBot(ctx context.Context, t string, cID string) {
 	err = dg.Open()
 	if err != nil {
 		log.Fatalf("Error opening Discord session: ", err)
+		return err
 	}
 	listenHost := os.Getenv("LISTEN")
 	if listenHost == "" {
@@ -86,5 +89,7 @@ func StartBot(ctx context.Context, t string, cID string) {
 	// Cleanly close down the Discord session.
 	if err := session.Close(); err != nil {
 		log.Errorf("Failed to cleanly shut down the session connection: %s", err)
+		return err
 	}
+	return nil
 }

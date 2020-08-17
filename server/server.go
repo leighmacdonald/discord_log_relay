@@ -7,7 +7,6 @@ import (
 	"github.com/leighmacdonald/discord_log_relay/relay"
 	log "github.com/sirupsen/logrus"
 	"net"
-	"time"
 )
 
 func Server(ctx context.Context, address string) (err error) {
@@ -32,23 +31,12 @@ func Server(ctx context.Context, address string) (err error) {
 
 			fmt.Printf("packet-received: bytes=%d from=%s\n",
 				n, addr.String())
-			deadline := time.Now().Add(consts.Timeout)
-			err = pc.SetWriteDeadline(deadline)
-			if err != nil {
-				doneChan <- err
-				return
-			}
 			var p relay.Payload
-			relay.Decode(buffer[:n], &p)
-			// Write the packet's contents back to the client.
-			n, err = pc.WriteTo(buffer[:n], addr)
-			if err != nil {
-				log.Errorf("failed to write packed to client: %v", err)
-				// doneChan <- err
-				return
+			if err := relay.Decode(buffer[:n], &p); err != nil {
+				log.Errorf("failed to decode payload: %v", err)
+				continue
 			}
-
-			fmt.Printf("packet-written: bytes=%d to=%s\n", n, addr.String())
+			_ = relay.SendPayload(p)
 		}
 	}()
 

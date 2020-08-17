@@ -3,6 +3,11 @@ package relay
 import (
 	"bytes"
 	"encoding/gob"
+	"github.com/leighmacdonald/steamid"
+)
+
+var (
+	BuildVersion = "master"
 )
 
 type MessageType int
@@ -14,9 +19,12 @@ const (
 )
 
 type Payload struct {
-	Type    MessageType
-	Server  string
-	Message string
+	Type     MessageType
+	Server   string
+	Message  string
+	Username string
+	SayTeam  bool
+	SteamID  steamid.SID64
 }
 
 func Encode(payload Payload) ([]byte, error) {
