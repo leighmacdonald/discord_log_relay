@@ -17,4 +17,3 @@ WORKDIR /app
 COPY --from=build /build/build/linux64/discord_log_relay .
 COPY docker.sh .
 ENTRYPOINT ["./docker.sh"]
-#CMD ["server", "-c", "741503901177610323", "-t", "NzQyOTQ0MjA1OTc4MjA2MjI5.XzNetQ.TzFXY5cVs82qC43j5QnDfloMJeM"]
