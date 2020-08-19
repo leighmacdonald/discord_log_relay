@@ -89,7 +89,6 @@ func newFileWatcher(ctx context.Context, directory string, newFileChan chan stri
 }
 
 func New(ctx context.Context, name string, logPath string, address string) (err error) {
-
 	addr, err := net.ResolveUDPAddr("udp", address)
 	if err != nil {
 		log.Fatalf("Failed to resolve addr: %v", err)
@@ -106,6 +105,7 @@ func New(ctx context.Context, name string, logPath string, address string) (err 
 		}
 	}()
 	messageChan := make(chan string, 5000)
+	messageChan <- `L 08/10/2020 - 12:11:04: "BOT<1><[U:0:0]><Red> say "Online"`
 	go newFileWatcher(ctx, logPath, messageChan)
 	errChan := make(chan error)
 	for {
@@ -116,7 +116,7 @@ func New(ctx context.Context, name string, logPath string, address string) (err 
 				continue
 			}
 			sid64 := steamid.SID3ToSID64(steamid.SID3(match[2]))
-			if !sid64.Valid() {
+			if sid64.Int64() != 76561197960265728 && !sid64.Valid() {
 				continue
 			}
 			team := false
