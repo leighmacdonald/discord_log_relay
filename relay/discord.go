@@ -18,8 +18,8 @@ func SendPayload(p Payload) error {
 	if p.SayTeam {
 		team = "(team) "
 	}
-	format := "`[%s] %s|%d: %s%s`"
-	return SendMsg(channelID, fmt.Sprintf(format, p.Server, p.Username, p.SteamID.Int64(), team, p.Message))
+	format := "`[%s] %d` **%s**: %s%s"
+	return SendMsg(channelID, fmt.Sprintf(format, p.Server, p.SteamID.Int64(), p.Username, team, p.Message))
 }
 
 func SendMsg(channel string, msg string) error {

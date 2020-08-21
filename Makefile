@@ -11,6 +11,6 @@ win:
 image:
 	@docker build -t leighmacdonald/discord_log_relay:latest .
 
-dist:
-	@zip -j discord_log_relay-`git describe --abbrev=0`-win64.zip build/win64/discord_log_relay.exe LICENSE
-	@zip -j discord_log_relay-`git describe --abbrev=0`-linux64.zip build/linux64/discord_log_relay LICENSE
+dist: linux win
+	@zip -j discord_log_relay-`git describe --abbrev=0`-win64.zip build/win64/discord_log_relay.exe LICENSE.md
+	@zip -j discord_log_relay-`git describe --abbrev=0`-linux64.zip build/linux64/discord_log_relay LICENSE.md
